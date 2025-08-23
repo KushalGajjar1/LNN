@@ -8,6 +8,7 @@ import argparse
 import random
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 try:
     from thop import profile as thop_profile
@@ -168,6 +169,138 @@ def eval_model(model, device, data_loader, criterion=None):
     return loss, acc
 
 
+def run_experiment(args):
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    set_seed(args.seed)
+
+    transform_ltc = transforms.Compose([
+        transforms.ToTensor(),
+        lambda x: x.view(28, 28)
+    ])
+    transform_cnn = transforms.Compose([
+        transforms.ToTensor(),
+        lambda x: x.view(1, 28, 28)
+    ])
+
+    train_set_ltc = datasets.MNIST(root=args.data_root, train=True, transform=transform_ltc, download=True)
+    test_set_ltc = datasets.MNIST(root=args.data_root, train=False, transform=transform_ltc, download=True)
+    train_loader_ltc = DataLoader(train_set_ltc, batch_size=args.batch_size, shuffle=True)
+    test_loader_ltc = DataLoader(test_set_ltc, batch_size=args.eval_batch_size, shuffle=False)
+
+    train_set_cnn = datasets.MNIST(root=args.data_root, train=True, transform=transform_cnn, download=True)
+    test_set_cnn = datasets.MNIST(root=args.data_root, train=False, transform=transform_cnn, download=True)
+    train_loader_cnn = DataLoader(train_set_cnn, batch_size=args.batch_size, shuffle=True)
+    test_loader_cnn = DataLoader(test_set_cnn, batch_size=args.eval_batch_size, shuffle=False)
+
+    ltc = LiquidTimeConstantNetwork(input_size=28, hidden_size=args.ltc_hidden, output_size=10).to(device)
+    cnn = CNNMNIST(num_classes=10).to(device)
+
+    criterion = nn.CrossEntropyLoss()
+    opt_ltc = torch.optim.Adam(ltc.parameters(), lr=args.lr)
+    opt_cnn = torch.optim.Adam(cnn.parameters(), lr=args.lr)
+
+    history = {
+        'ltc' : {'train_loss' : [], 'train_acc' : [], 'val_loss' : [], 'val_acc' : []},
+        'cnn' : {'train_loss' : [], 'train_acc' : [], 'val_loss' : [], 'val_acc' : []}
+    }
+
+    print("Counting parameters and computing FLOPS ...")
+    dummy_cnn = torch.randn(1, 1, 28, 28).to(device)
+    dummy_ltc = torch.randn(1, 28, 28).to(device)
+    flops_cnn, params_cnn = compute_flops(cnn, dummy_cnn)
+    flops_ltc, params_ltc = compute_flops(ltc, dummy_ltc)
+    print(f"CNN params : {params_cnn:,}, CNN flops : {flops_cnn if flops_cnn else 'unavailable'}")
+    print(f"LTC params : {params_ltc:,}, LTC flops : {flops_ltc if flops_ltc else 'unavailable'}")
+
+    for epoch in range(1, args.epochs + 1):
+
+        t0 = time.time()
+        train_loss, train_acc = train_one_epoch(ltc, device, train_loader_ltc, opt_ltc, criterion)
+        val_loss, val_acc = eval_model(ltc, device, test_loader_ltc, criterion)
+        t1 = time.time()
+        history['ltc']['train_loss'].append(train_loss)
+        history['ltc']['train_acc'].append(train_acc)
+        history['ltc']['val_loss'].append(val_loss)
+        history['ltc']['val_acc'].append(val_acc)
+        print(f"[Epoch {epoch}] LTC - train loss {train_loss:.4f} acc {train_acc:.4f} | val acc {val_acc:.4f} | epoch time {t1-t0:.2f}s")
+
+        t0 = time.time()
+        train_loss, train_acc = train_one_epoch(cnn, device, train_loader_cnn, opt_cnn, criterion)
+        val_loss, val_acc = eval_model(cnn, device, test_loader_cnn, criterion)
+        t1 = time.time()
+        history['cnn']['train_loss'].append(train_loss)
+        history['cnn']['train_acc'].append(train_acc)
+        history['cnn']['val_loss'].append(val_loss)
+        history['cnn']['val_acc'].append(val_acc)
+        print(f"[Epoch {epoch}] CNN - train loss {train_loss:.4f} acc {train_acc:.4f} | val acc {val_acc:.4f} | epoch time {t1-t0:.2f}s")
+
+
+    # for epoch in range(1, args.epochs + 1):
+
+    #     t0 = time.time()
+    #     train_loss_ltc, train_acc_ltc = train_one_epoch(ltc, device, train_loader_ltc, opt_ltc, criterion)
+    #     val_loss_ltc, val_acc_ltc = eval_model(ltc, device, test_loader_ltc, criterion)
+    #     t1 = time.time()
+    #     history['ltc']['train_loss'].append(train_loss_ltc)
+    #     history['ltc']['train_acc'].append(train_acc_ltc)
+    #     history['ltc']['val_loss'].append(val_loss_ltc)
+    #     history['ltc']['val_acc'].append(val_acc_ltc)
+    #     print(f"[Epoch {epoch}] LTC - train loss {train_loss_ltc:.4f} acc {train_acc_ltc:.4f} | val acc {val_acc_ltc:.4f} | epoch time {t1-t0:.2f}s")
+
+    #     t0 = time.time()
+    #     train_loss_cnn, train_acc_cnn = train_one_epoch(cnn, device, train_loader_cnn, opt_cnn, criterion)
+    #     val_loss_cnn, val_acc_cnn = eval_model(cnn, device, test_loader_cnn, criterion)  # <--- fixed
+    #     t1 = time.time()
+    #     history['cnn']['train_loss'].append(train_loss_cnn)
+    #     history['cnn']['train_acc'].append(train_acc_cnn)
+    #     history['cnn']['val_loss'].append(val_loss_cnn)
+    #     history['cnn']['val_acc'].append(val_acc_cnn)
+    #     print(f"[Epoch {epoch}] CNN - train loss {train_loss_cnn:.4f} acc {train_acc_cnn:.4f} | val acc {val_acc_cnn:.4f} | epoch time {t1-t0:.2f}s")
+
+
+    sample_batch_ltc, _ = next(iter(test_loader_ltc))
+    sample_batch_cnn, _ = next(iter(test_loader_cnn))
+
+    mean_ltc, std_ltc = measure_inference_time(ltc, device, sample_batch_ltc, n_warmup=20, n_runs=100)
+    mean_cnn, std_cnn = measure_inference_time(cnn, device, sample_batch_cnn, n_warmup=20, n_runs=100)
+
+    batch_size_ltc = sample_batch_ltc.size(0)
+    batch_size_cnn = sample_batch_cnn.size(0)
+    per_sample_ltc = mean_ltc / batch_size_ltc
+    per_sample_cnn = mean_cnn / batch_size_cnn
+
+    print("\n=== SUMMARY ===")
+    print(f"CNN parameters: {params_cnn:,}")
+    print(f"LTC parameters: {params_ltc:,}")
+    if flops_cnn: print(f"CNN FLOPS (approx): {flops_cnn:,}")
+    else: print("CNN FLOPS: unavailable (thop not installed or failed)")
+    if flops_ltc: print(f"LTC FLOPS (approx): {flops_ltc:,}")
+    else: print("LTC FLOPS: unavailable (thop not installed or failed)")
+    print(f"CNN inference (batch time mean): {mean_cnn:.6f}s ± {std_cnn:.6f}, per sample: {per_sample_cnn:.6f}s")
+    print(f"LTC inference (batch time mean): {mean_ltc:.6f}s ± {std_ltc:.6f}, per sample: {per_sample_ltc:.6f}s")
+
+    epochs = range(1, args.epochs+1)
+    plt.figure(figsize=(8,4))
+    plt.plot(epochs, history['cnn']['val_acc'], label='CNN val acc')
+    plt.plot(epochs, history['ltc']['val_acc'], label='LTC val acc')
+    plt.xlabel('Epoch')
+    plt.ylabel('Validation Accuracy')
+    plt.title('Validation Accuracy per Epoch')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('val_accuracy_comparison.png')
+    print("Saved validation accuracy plot to val_accuracy_comparison.png")
+
+    np.savez('history_comparison.npz',
+             cnn_train_loss=np.array(history['cnn']['train_loss']),
+             cnn_val_acc=np.array(history['cnn']['val_acc']),
+             ltc_train_loss=np.array(history['ltc']['train_loss']),
+             ltc_val_acc=np.array(history['ltc']['val_acc']))
+    print("Saved training history to history_comparison.npz")
+
+
 def train(args):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -231,7 +364,8 @@ if __name__ == '__main__':
     run_experiment(args)
 
 
-# # compare_models.py
+
+# compare_models.py
 # import time
 # import argparse
 # import math
