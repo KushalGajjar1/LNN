@@ -1,2 +1,3 @@
 MNIST_Classification/data
 MNIST_Classification/history_comparison.npz
+MNIST_Classification/val_accuracy_comparison.png
