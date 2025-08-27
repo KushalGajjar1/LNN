@@ -147,7 +147,7 @@ class LTCCell(nn.Module):
 
     def _sigmoid(self, v_pre, mu, sigma):
 
-        v_pre_reshape = v_pre.unsqueeze(-1)
+        v_pre_reshaped = v_pre.unsqueeze(-1)
         mues = v_pre_reshaped - mu
         x = sigma * mues
         return torch.sigmoid(x)
@@ -163,8 +163,22 @@ class LTCCell(nn.Module):
         w_denominator_sensory = torch.sum(sensory_w_activation, dim=1)
 
         for t in range(self._ode_solver_unfolds):
+            w_activation = self.W * self._sigmoid(v_pre, self.mu, self.sigma)
+            rev_activation = w_activation * self.erev
 
-import os
+            w_numerator = torch.sum(rev_activation, dim=1) + w_numerator_sensory
+            w_denominator = torch.sum(w_activation, dim=1) + w_denominator_sensory
+
+            numerator = self.cm_t.unsqueeze(0) * v_pre = self.gleak.unsqueeze(0) * self.vleak.unsqueeze(0) + w_numerator
+            denominator = self.cm_t.unsqueeze(0) + self.gleak.unsqueeze(0) + w_denominator
+
+            v_pre = numerator / denominator
+
+        return v_pre
+    
+
+
+# import os
 # from enum import Enum
 
 # import numpy as np
