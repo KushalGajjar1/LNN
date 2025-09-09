@@ -83,7 +83,7 @@ class LTCCell(nn.Module):
         erev_init = (2 * np.random.randint(0, 2, size=[self._num_units, self._num_units]) - 1) * self._erev_init_factor
         self.erev = nn.Parameter(torch.from_numpy(erev_init).float())
 
-        init.uniform_(self.mu, a=0.3, b=0.8)
+        init.uniform_(self.mu, a=0.3, b=0.8) 
         init.uniform_(self.sigma, a=3.0, b=8.0)
         init.uniform_(self.W, a=self._w_init_min, b=self._w_init_max)
 
