@@ -4,3 +4,6 @@ MNIST_Classification/history_comparison.npz
 MNIST_Classification/val_accuracy_comparison.png
 LTC_network/data
 LTC_network/results
+Translation/eng_french.csv
+Translation/ltc_translator_best.pt
+Translation/__pycache__
