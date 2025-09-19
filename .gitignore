@@ -7,3 +7,4 @@ LTC_network/results
 Translation/eng_french.csv
 Translation/ltc_translator_best.pt
 Translation/__pycache__
+Translation/ltc_translator_attention.pt
