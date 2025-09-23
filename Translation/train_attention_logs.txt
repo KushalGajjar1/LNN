@@ -1,0 +1,47 @@
+Using device: cuda:0
+Loading and preprocessing data...
+Initializing tokenizers...
+Training set size: 90000
+Validation set size: 10000
+Initializing model with Attention...
+Starting training...
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 01 | Teacher Forcing: 1.00
+	Train Loss: 3.590 | Train PPL:  36.219
+	 Val. Loss: 8.142 |  Val. PPL: 3435.580
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 02 | Teacher Forcing: 0.90
+	Train Loss: 2.648 | Train PPL:  14.129
+	 Val. Loss: 5.282 |  Val. PPL: 196.678
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 03 | Teacher Forcing: 0.80
+	Train Loss: 2.272 | Train PPL:   9.699
+	 Val. Loss: 4.515 |  Val. PPL:  91.403
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 04 | Teacher Forcing: 0.70
+	Train Loss: 2.058 | Train PPL:   7.832
+	 Val. Loss: 3.962 |  Val. PPL:  52.583
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 05 | Teacher Forcing: 0.60
+	Train Loss: 1.946 | Train PPL:   6.999
+	 Val. Loss: 3.568 |  Val. PPL:  35.447
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 06 | Teacher Forcing: 0.50
+	Train Loss: 1.895 | Train PPL:   6.653
+	 Val. Loss: 3.290 |  Val. PPL:  26.843
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 07 | Teacher Forcing: 0.40
+	Train Loss: 1.855 | Train PPL:   6.391
+	 Val. Loss: 2.954 |  Val. PPL:  19.180
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 08 | Teacher Forcing: 0.30
+	Train Loss: 1.860 | Train PPL:   6.422
+	 Val. Loss: 2.751 |  Val. PPL:  15.665
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 09 | Teacher Forcing: 0.20
+	Train Loss: 1.893 | Train PPL:   6.642
+	 Val. Loss: 2.605 |  Val. PPL:  13.529
+----> New best model saved to ltc_translator_attention.pt
+Epoch: 10 | Teacher Forcing: 0.10
+	Train Loss: 1.928 | Train PPL:   6.875
+	 Val. Loss: 2.455 |  Val. PPL:  11.649

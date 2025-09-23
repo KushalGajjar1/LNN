@@ -310,11 +310,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', default="eng_french.csv", type=str)
     parser.add_argument('--model_save_path', default="ltc_translator_attention.pt", type=str)
-    parser.add_argument('--num_examples', default=20000, type=int)
-    parser.add_argument('--batch_size', default=4, type=int) # Increased batch size slightly
+    parser.add_argument('--num_examples', default=100000, type=int)
+    parser.add_argument('--batch_size', default=16, type=int) # Increased batch size slightly
     parser.add_argument('--embed_size', default=256, type=int)
     parser.add_argument('--hidden_size', default=512, type=int)
-    parser.add_argument('--num_epochs', default=4, type=int) # Increased epochs for better learning
+    parser.add_argument('--num_epochs', default=10, type=int) # Increased epochs for better learning
     parser.add_argument('--learning_rate', default=0.001, type=float)
     parser.add_argument('--grad_clip', default=1.0, type=float)
     parser.add_argument('--validation_split', default=0.1, type=float)
