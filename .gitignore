@@ -9,3 +9,6 @@ Translation/ltc_translator_best.pt
 Translation/__pycache__
 Translation/ltc_translator_attention.pt
 Translation/ltc_translator_attention_1.pt
+LTC_optimization/__pycache__
+LTC_optimization/cuda_ode_step/build
+LTC_optimization/cuda_ode_step/cuda_ode_step.egg-info
