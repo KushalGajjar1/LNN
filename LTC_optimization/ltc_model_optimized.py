@@ -5,7 +5,6 @@ import numpy as np
 import os
 from enum import Enum
 
-# Import the custom kernels
 from triton_ode_step import ode_step_forward_triton
 from cuda_ode_step import forward as ode_step_forward_cuda
 
@@ -137,7 +136,6 @@ class LTCCell(nn.Module):
     def _ode_step_semi_implicit(self, inputs, state):
         v_pre = state
         
-        # Pre-computations for sensory inputs
         sensory_w_activation = self.sensory_W * self._sigmoid(inputs, self.sensory_mu, self.sensory_sigma)
         sensory_rev_activation = sensory_w_activation * self.sensory_erev
         w_numerator_sensory = torch.sum(sensory_rev_activation, dim=1)
@@ -154,7 +152,6 @@ class LTCCell(nn.Module):
                 v_pre = numerator / denominator
             return v_pre
         elif self.backend == 'triton':
-            # Use Triton kernel
             v_pre_out = ode_step_forward_triton(
                 v_pre.clone(), w_numerator_sensory, w_denominator_sensory,
                 self.W, self.mu, self.sigma, self.erev,
@@ -163,7 +160,6 @@ class LTCCell(nn.Module):
             )
             return v_pre_out
         elif self.backend == 'cuda':
-            # Use CUDA kernel
             v_pre_out = v_pre.clone()
             ode_step_forward_cuda(
                 v_pre_out, w_numerator_sensory, w_denominator_sensory,

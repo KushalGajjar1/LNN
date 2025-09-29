@@ -157,20 +157,15 @@ class GestureModel(nn.Module):
                 outputs.append(output)
             outputs = torch.stack(outputs, dim=0)
 
-        # Pass RNN outputs to the fully connected layer
-        # outputs shape: (seq_len, batch, hidden_size)
         logits = self.fc(outputs)
         return logits.permute(1, 2, 0) # (batch, classes, seq_len) for cross_entropy
 
 def train(model, data, epochs, learning_rate, log_period):
     device = next(model.parameters()).device
-    
-    # LTC models may require a different learning rate
     lr = 0.01 if model.model_type.startswith("ltc") else learning_rate
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
     
-    # Prepare results logging
     results_dir = os.path.join("results", "gesture")
     os.makedirs(results_dir, exist_ok=True)
     result_file = os.path.join(results_dir, f"{model.model_type}_{model.model_size}.csv")
@@ -178,7 +173,6 @@ def train(model, data, epochs, learning_rate, log_period):
         with open(result_file, "w") as f:
             f.write("best_epoch,train_loss,train_acc,valid_loss,valid_acc,test_loss,test_acc\n")
 
-    # Prepare model checkpointing
     checkpoint_dir = os.path.join("torch_sessions", "gesture")
     os.makedirs(checkpoint_dir, exist_ok=True)
     checkpoint_path = os.path.join(checkpoint_dir, f"{model.model_type}.pth")
@@ -206,7 +200,6 @@ def train(model, data, epochs, learning_rate, log_period):
 
             loss.backward()
             
-            # ** THE FIX: Add gradient clipping here **
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0) # Clip gradients to a max norm of 1.0
 
             optimizer.step()
@@ -251,8 +244,7 @@ def train(model, data, epochs, learning_rate, log_period):
         if e > 0 and not np.isfinite(np.mean(train_losses)):
             print("Training diverged. Stopping.")
             break
-            
-    # Restore best model and print final results
+        
     if os.path.exists(checkpoint_path):
         model.load_state_dict(torch.load(checkpoint_path))
     best_epoch, tl, ta, vl, va, tsl, tsa = best_valid_stats
@@ -274,11 +266,9 @@ if __name__ == "__main__":
     parser.add_argument('--lr', default=0.001, type=float, help="Learning rate (overridden by LTC models)")
     args = parser.parse_args()
 
-    # Setup device
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
-    # Load data and model
     gesture_data = GestureData(device=device)
     model = GestureModel(input_size=32, model_type=args.model, model_size=args.size).to(device)
     
