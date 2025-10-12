@@ -1,0 +1,12 @@
+You are an evaluator (strict, terse). Given the receipt image, and the extracted JSON below, evaluate whether the extracted fields are CORRECT.
+
+EXTRACTION_JSON:
+{assistant_response}
+
+Return **only** this JSON object (no explanation text):
+{{
+  "verdict": "correct" | "incorrect",
+  "issues": ["missing_date", "total_mismatch", "company_partial", ...] if any issues are found else give None,
+}}
+
+Respond in JSON format

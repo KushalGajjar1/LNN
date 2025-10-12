@@ -14,3 +14,4 @@ LTC_optimization/cuda_ode_step/build
 LTC_optimization/cuda_ode_step/cuda_ode_step.egg-info
 Kernel/build
 Kernel/liquid_cuda.egg-info
+LFM/SROIE2019

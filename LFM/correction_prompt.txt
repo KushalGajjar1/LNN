@@ -1,0 +1,13 @@
+You are an evaluator (strict, terse). Given the image, the extracted JSON (EXTRACTION_JSON) and the evaluator output (EVALUATION_JSON) that lists problems, produce a corrected JSON that fixes the problems described by EVALUATION_JSON.
+
+Inputs (replace placeholders):
+
+- EXTRACTION_JSON: 
+{EXTRACTION_JSON}
+
+
+- EVALUATION_JSON: 
+{EVALUATION_JSON}
+
+**Only give "company", "date", "address", "total"**
+Now produce the corrected JSON.
