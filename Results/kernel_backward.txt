@@ -1,0 +1,27 @@
+
+--- Running Test with Model params: {'input_size': 64, 'hidden_size': 512, 'output_size': 10, 'dt': 0.1} ---
+--- Data params: {'seq_len': 100, 'batch_size': 64} ---
+
+--- Verifying Correctness ---
+Forward Pass Correct: True
+  Max absolute difference (Forward): 0.000026
+  Mean absolute difference (Forward): 0.000004
+
+--- Backward Pass Verification ---
+Backward Pass (W_in.grad) Correct: True
+  Max absolute difference for W_in.grad: 0.025131
+  Mean absolute difference for W_in.grad: 0.002132
+Backward Pass (W_rec.grad) Correct: True
+  Max absolute difference for W_rec.grad: 0.004703
+  Mean absolute difference for W_rec.grad: 0.000485
+Backward Pass (bias.grad) Correct: True
+  Max absolute difference for bias.grad: 0.013371
+  Mean absolute difference for bias.grad: 0.003419
+Backward Pass (tau_param.grad) Correct: True
+  Max absolute difference for tau_param.grad: 0.045711
+  Mean absolute difference for tau_param.grad: 0.008042
+
+--- Running Benchmark ---
+PyTorch version took: 27.0946 ms per iteration
+CUDA (cuBLAS) took:  12.1065 ms per iteration
+Speedup: 2.24x

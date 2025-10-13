@@ -1,0 +1,24 @@
+Configuration:
+  Batch Size: 128
+  Input Size: 32
+  Num Units:  256
+------------------------------
+Initializing models...
+Running forward pass for correctness check...
+
+==============================
+Verification Results
+==============================
+Triton implementation correct: True (Max diff: 1.1921e-07)
+CUDA implementation correct:   True (Max diff: 2.3842e-07)
+
+==============================
+Benchmarking Results
+==============================
+PyTorch Backend:   9.5091 ms
+Triton Backend:    0.5953 ms
+CUDA Backend:      0.5665 ms
+------------------------------
+Triton Speedup vs PyTorch: 15.97x
+CUDA Speedup vs PyTorch:   16.79x
+==============================
